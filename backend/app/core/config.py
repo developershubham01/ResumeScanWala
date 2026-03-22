@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
     database_url: str = ""
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = "*"
     max_file_size_mb: int = 5
     smtp_host: str = ""
     smtp_port: int = 587

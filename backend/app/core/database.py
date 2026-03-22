@@ -13,7 +13,10 @@ def _build_connect_args(database_url: str) -> dict[str, object]:
         return {"check_same_thread": False, "timeout": 15}
 
     if database_url.startswith("postgresql") or database_url.startswith("mysql"):
-        return {"connect_timeout": 10}
+        connect_args: dict[str, object] = {"connect_timeout": 10}
+        if database_url.startswith("postgresql") and "supabase.co" in database_url and "sslmode=" not in database_url:
+            connect_args["sslmode"] = "require"
+        return connect_args
 
     return {}
 

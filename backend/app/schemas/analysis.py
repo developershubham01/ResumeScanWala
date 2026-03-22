@@ -34,7 +34,7 @@ class GeminiAnalysis(BaseModel):
 
 
 class AnalysisResponse(BaseModel):
-    analysis_id: str
+    analysis_id: int
     file_name: str
     created_at: datetime
     extracted_characters: int
@@ -43,4 +43,3 @@ class AnalysisResponse(BaseModel):
 
 class ErrorResponse(BaseModel):
     detail: str
-

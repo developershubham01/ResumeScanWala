@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
@@ -8,13 +9,42 @@ from app.core.config import settings
 from app.core.database import get_db
 from app.models.analysis import AnalysisRecord
 from app.models.subscriber import SubscriberRecord
-from app.schemas.analysis import AnalysisResponse, ErrorResponse
+from app.schemas.analysis import AnalysisResponse, ErrorResponse, GeminiAnalysis
 from app.schemas.subscription import SubscriptionRequest, SubscriptionResponse
 from app.services.email_service import SubscriptionEmailService
 from app.services.gemini_service import GeminiAnalyzer
 from app.services.parser import extract_text, validate_upload
 
 router = APIRouter()
+
+
+def _build_feedback_text(analysis: GeminiAnalysis) -> str:
+    feedback_sections: list[str] = []
+
+    if analysis.improved_summary.strip():
+        feedback_sections.append(f"Improved summary: {analysis.improved_summary.strip()}")
+
+    if analysis.issues:
+        feedback_sections.append(f"Issues: {', '.join(analysis.issues)}")
+
+    if analysis.suggestions:
+        feedback_sections.append(f"Suggestions: {', '.join(analysis.suggestions)}")
+
+    if analysis.missing_keywords:
+        feedback_sections.append(f"Missing keywords: {', '.join(analysis.missing_keywords)}")
+
+    if analysis.missing_skills:
+        feedback_sections.append(f"Missing skills: {', '.join(analysis.missing_skills)}")
+
+    for section in analysis.section_analysis:
+        feedback_sections.append(
+            f"{section.section} ({section.score}/100): {section.feedback}"
+        )
+
+    if feedback_sections:
+        return "\n\n".join(feedback_sections)
+
+    return json.dumps(analysis.model_dump(), ensure_ascii=False)
 
 
 @router.get("/health")
@@ -112,13 +142,10 @@ async def analyze_resume(
         ) from exc
 
     record = AnalysisRecord(
-        file_name=file.filename or "resume",
-        file_type=extension.replace(".", "").upper(),
         extracted_text=resume_text,
         job_description=job_description.strip(),
-        ats_score=analysis.ats_score,
-        jd_match_percentage=analysis.jd_match_percentage,
-        analysis_payload=analysis.model_dump(),
+        score=analysis.ats_score,
+        feedback=_build_feedback_text(analysis),
     )
     db.add(record)
     try:
@@ -133,7 +160,7 @@ async def analyze_resume(
 
     return AnalysisResponse(
         analysis_id=record.id,
-        file_name=record.file_name,
+        file_name=file.filename or "resume",
         created_at=record.created_at,
         extracted_characters=len(record.extracted_text),
         analysis=analysis,

@@ -7,7 +7,7 @@ A production-ready free SaaS web app that analyzes a resume against a job descri
 - Frontend: React + Vite + Tailwind CSS
 - Backend: FastAPI + Python
 - AI: Google Gemini API
-- Database: PostgreSQL + SQLAlchemy
+- Database: Supabase PostgreSQL + SQLAlchemy
 - Resume parsing: PyMuPDF and python-docx
 - Deployment: Vercel for frontend, Render or Railway for backend
 
@@ -56,7 +56,7 @@ resume_analyzer_with_job_description/
 - Inspect resume issues and suggestions
 - Read section-wise feedback
 - Download the final report as PDF
-- Persist completed analyses in PostgreSQL
+- Persist completed analyses in Supabase PostgreSQL
 
 ## Backend API
 
@@ -71,7 +71,7 @@ Returns structured JSON:
 
 ```json
 {
-  "analysis_id": "uuid",
+  "analysis_id": 1,
   "file_name": "resume.pdf",
   "created_at": "2026-03-19T11:00:00.000000",
   "extracted_characters": 4250,
@@ -125,14 +125,27 @@ Required environment values in `backend/.env`:
 
 - `GEMINI_API_KEY`: your Google Gemini API key
 - `GEMINI_MODEL`: default `gemini-2.5-flash`
-- `DATABASE_URL`: PostgreSQL connection string, for example `postgresql+psycopg://postgres:password@localhost:5432/resume_analyzer_db`
+- `DATABASE_URL`: Supabase PostgreSQL connection string, for example `postgresql+psycopg://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres?sslmode=require`
 - `CORS_ORIGINS`: frontend URL, for example `http://localhost:5173`
 - `MAX_FILE_SIZE_MB`: max upload size, default `5`
 
-Create the database before starting the backend:
+Create these tables in Supabase before starting the backend:
 
 ```sql
-CREATE DATABASE resume_analyzer_db;
+CREATE TABLE analyses (
+    id SERIAL PRIMARY KEY,
+    extracted_text TEXT,
+    job_description TEXT,
+    score INTEGER,
+    feedback TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE subscribers (
+    id SERIAL PRIMARY KEY,
+    email TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 ### 2. Frontend
@@ -186,7 +199,7 @@ Structured output validation is enforced with a Pydantic schema so the app rejec
 6. Add environment variables:
    - `GEMINI_API_KEY`
    - `GEMINI_MODEL=gemini-2.5-flash`
-   - `DATABASE_URL=postgresql+psycopg://USERNAME:PASSWORD@HOST:5432/resume_analyzer_db`
+   - `DATABASE_URL=postgresql+psycopg://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres?sslmode=require`
    - `CORS_ORIGINS=https://your-vercel-domain.vercel.app`
 7. Deploy and copy the backend URL.
 
@@ -196,7 +209,7 @@ Structured output validation is enforced with a Pydantic schema so the app rejec
 2. Set the service root to `backend`.
 3. Railway will detect Python automatically.
 4. Set the start command to `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. Add the same environment variables used for Render, including your PostgreSQL `DATABASE_URL`.
+5. Add the same environment variables used for Render, including your Supabase PostgreSQL `DATABASE_URL`.
 6. Deploy and copy the public backend URL.
 
 ### Frontend on Vercel
