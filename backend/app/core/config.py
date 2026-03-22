@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
-    database_url: str = "postgresql+psycopg://postgres:password@localhost:5432/resume_analyzer_db"
+    database_url: str = ""
     cors_origins: str = "http://localhost:5173"
     max_file_size_mb: int = 5
     smtp_host: str = ""
@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    @property
+    def database_url_clean(self) -> str:
+        return self.database_url.strip()
 
     @property
     def smtp_configured(self) -> bool:
