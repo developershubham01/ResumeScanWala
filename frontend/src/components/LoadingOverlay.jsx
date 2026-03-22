@@ -1,5 +1,7 @@
-import { Gauge, Sparkles, Wifi } from 'lucide-react'
+import { CheckCircle2, Gauge, Sparkles, Wifi } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+
+import BrandMark from './BrandMark'
 
 const LOADING_STEPS = [
   'Uploading your resume',
@@ -44,16 +46,23 @@ function LoadingOverlay() {
 
   return (
     <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white">
-      <div className="border-b border-slate-100 bg-gradient-to-r from-ink via-slate-900 to-pine px-6 py-5 text-white">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/60">Live Analysis</p>
+      <div className="border-b border-slate-100 bg-gradient-to-r from-ink via-slate-900 to-pine px-6 py-6 text-white">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <BrandMark
+              className="text-white"
+              iconClassName="h-14 w-14 rounded-3xl border-white/20 bg-white/10"
+              titleClassName="text-2xl text-white"
+              subtitleClassName="text-sm text-white/65"
+            />
+            <p className="mt-5 text-xs font-semibold uppercase tracking-[0.24em] text-white/60">Live Analysis</p>
             <h3 className="mt-2 font-display text-2xl font-bold">Analyzing your resume</h3>
           </div>
-          <div className="relative flex h-16 w-16 items-center justify-center">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-white/10 animate-pulseRing" />
-            <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink">
-              <Sparkles className="h-5 w-5" />
+          <div className="relative flex h-20 w-20 items-center justify-center self-start">
+            <span className="absolute inline-flex h-full w-full rounded-[1.75rem] bg-white/10 animate-pulseRing" />
+            <span className="absolute inline-flex h-16 w-16 rounded-[1.4rem] border border-white/15 bg-white/5" />
+            <span className="relative flex h-14 w-14 items-center justify-center rounded-[1.2rem] bg-white shadow-lg shadow-slate-950/20">
+              <img src="/favicon.svg" alt="" aria-hidden="true" className="h-8 w-8 animate-float object-contain" />
             </span>
           </div>
         </div>
@@ -111,10 +120,21 @@ function LoadingOverlay() {
           </div>
         </div>
 
-        <div className="rounded-3xl bg-[#fff8f1] px-5 py-4 text-sm text-slate-600">
-          {slowNetwork
-            ? 'This can take a little longer on slower networks or when Gemini is busy. Please keep this tab open.'
-            : 'We are parsing your resume, comparing it with the role, and generating structured recommendations.'}
+        <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
+          <div className="rounded-3xl bg-[#fff8f1] px-5 py-4 text-sm text-slate-600">
+            {slowNetwork
+              ? 'This can take a little longer on slower networks or when Gemini is busy. Please keep this tab open.'
+              : 'We are parsing your resume, comparing it with the role, and generating structured recommendations.'}
+          </div>
+          <div className="rounded-3xl border border-emerald-100 bg-emerald-50 px-5 py-4 text-sm text-emerald-800">
+            <div className="flex items-center gap-2 font-semibold">
+              <CheckCircle2 className="h-4 w-4" />
+              Structured analysis mode active
+            </div>
+            <p className="mt-2 leading-6 text-emerald-700">
+              Your upload stays in the branded analyzer flow until results are ready.
+            </p>
+          </div>
         </div>
       </div>
     </div>

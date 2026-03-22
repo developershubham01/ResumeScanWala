@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import BackToTopButton from './components/BackToTopButton'
 import Footer from './components/Footer'
 import Header from './components/Header'
+import RouteLoadingState from './components/RouteLoadingState'
 import ScrollToTop from './components/ScrollToTop'
 import { AnalysisProvider } from './context/AnalysisContext'
 
@@ -20,7 +21,7 @@ function App() {
             <ScrollToTop />
             <Header />
             <main>
-              <Suspense fallback={<div className="section-shell py-24 text-center text-slate-600">Loading...</div>}>
+              <Suspense fallback={<RouteLoadingState />}>
                 <Routes>
                   <Route path="/" element={<HomePage />} />
                   <Route path="/results" element={<ResultsPage />} />

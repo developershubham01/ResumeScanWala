@@ -1,6 +1,6 @@
-import { siteConfig } from '../siteConfig'
 import jsPDF from 'jspdf'
 
+import { siteConfig } from '../siteConfig'
 import { formatDate } from './helpers'
 
 function addWrappedText(doc, text, x, y, width, lineHeight = 7) {
@@ -16,7 +16,7 @@ function addBulletList(doc, title, items, x, y, width) {
 
   let currentY = y + 7
   items.forEach((item) => {
-    currentY = addWrappedText(doc, `• ${item}`, x + 2, currentY, width - 2)
+    currentY = addWrappedText(doc, `- ${item}`, x + 2, currentY, width - 2)
     currentY += 2
   })
 

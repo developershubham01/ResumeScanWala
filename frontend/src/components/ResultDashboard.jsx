@@ -6,13 +6,20 @@ import ScoreRing from './ScoreRing'
 
 function ResultDashboard({ result, onDeleteResult }) {
   const { analysis } = result
+  const matchedSkills = analysis.top_matching_skills ?? []
+  const missingSkills = analysis.missing_skills ?? []
+  const missingKeywords = analysis.missing_keywords ?? []
+  const issues = analysis.issues ?? []
+  const suggestions = analysis.suggestions ?? []
+  const sectionAnalysis = analysis.section_analysis ?? []
 
   const scoreData = [
     { name: 'ATS', value: analysis.ats_score, fill: '#0f766e' },
     { name: 'Job Match', value: analysis.jd_match_percentage, fill: '#c2410c' },
   ]
 
-  const sectionChartData = buildSectionChartData(analysis.section_analysis)
+  const sectionChartData = buildSectionChartData(sectionAnalysis)
+
   const handleDownload = async () => {
     const { downloadAnalysisPdf } = await import('../utils/report')
     downloadAnalysisPdf(result)
@@ -41,7 +48,7 @@ function ResultDashboard({ result, onDeleteResult }) {
       </div>
 
       <div className="mt-8 grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-        <div className="glass-card p-8">
+        <div className="glass-card min-w-0 p-8">
           <div className="grid gap-8 sm:grid-cols-2">
             <ScoreRing score={analysis.ats_score} label="ATS Score" />
             <ScoreRing score={analysis.jd_match_percentage} label="JD Match" accent="#c2410c" />
@@ -50,29 +57,37 @@ function ResultDashboard({ result, onDeleteResult }) {
           <div className="mt-8 space-y-4">
             <div className="rounded-3xl bg-slate-50 p-4">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Matched Skills</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {analysis.top_matching_skills.map((skill) => (
-                  <span key={skill} className="rounded-full bg-mist px-3 py-2 text-sm font-medium text-pine">
-                    {skill}
-                  </span>
-                ))}
-              </div>
+              {matchedSkills.length ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {matchedSkills.map((skill) => (
+                    <span key={skill} className="rounded-full bg-mist px-3 py-2 text-sm font-medium text-pine">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-slate-500">No matching skills were returned for this analysis.</p>
+              )}
             </div>
 
             <div className="rounded-3xl bg-slate-50 p-4">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Missing Skills</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {analysis.missing_skills.map((skill) => (
-                  <span key={skill} className="rounded-full bg-orange-50 px-3 py-2 text-sm font-medium text-clay">
-                    {skill}
-                  </span>
-                ))}
-              </div>
+              {missingSkills.length ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {missingSkills.map((skill) => (
+                    <span key={skill} className="rounded-full bg-orange-50 px-3 py-2 text-sm font-medium text-clay">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-slate-500">No missing skills were detected.</p>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="glass-card p-6 sm:p-8">
+        <div className="glass-card min-w-0 p-6 sm:p-8">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pine/10 text-pine">
               <ScanSearch className="h-5 w-5" />
@@ -83,8 +98,8 @@ function ResultDashboard({ result, onDeleteResult }) {
             </div>
           </div>
 
-          <div className="mt-8 h-72">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="mt-8 h-72 min-w-0">
+            <ResponsiveContainer width="100%" height="100%" minWidth={280} debounce={200}>
               <BarChart data={scoreData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" />
@@ -107,13 +122,17 @@ function ResultDashboard({ result, onDeleteResult }) {
             <TriangleAlert className="h-5 w-5 text-clay" />
             <h2 className="font-display text-2xl font-bold">Missing Keywords</h2>
           </div>
-          <div className="mt-5 flex flex-wrap gap-3">
-            {analysis.missing_keywords.map((keyword) => (
-              <span key={keyword} className="rounded-full bg-orange-50 px-4 py-2 text-sm font-medium text-clay">
-                {keyword}
-              </span>
-            ))}
-          </div>
+          {missingKeywords.length ? (
+            <div className="mt-5 flex flex-wrap gap-3">
+              {missingKeywords.map((keyword) => (
+                <span key={keyword} className="rounded-full bg-orange-50 px-4 py-2 text-sm font-medium text-clay">
+                  {keyword}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-5 text-slate-500">No missing keywords were identified.</p>
+          )}
         </div>
 
         <div className="glass-card p-8">
@@ -121,13 +140,17 @@ function ResultDashboard({ result, onDeleteResult }) {
             <TriangleAlert className="h-5 w-5 text-clay" />
             <h2 className="font-display text-2xl font-bold">Resume Issues</h2>
           </div>
-          <ul className="mt-5 space-y-3 text-slate-700">
-            {analysis.issues.map((issue) => (
-              <li key={issue} className="rounded-2xl bg-slate-50 px-4 py-3">
-                {issue}
-              </li>
-            ))}
-          </ul>
+          {issues.length ? (
+            <ul className="mt-5 space-y-3 text-slate-700">
+              {issues.map((issue) => (
+                <li key={issue} className="rounded-2xl bg-slate-50 px-4 py-3">
+                  {issue}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-5 text-slate-500">No major resume issues were reported.</p>
+          )}
         </div>
       </div>
 
@@ -137,74 +160,96 @@ function ResultDashboard({ result, onDeleteResult }) {
             <Lightbulb className="h-5 w-5 text-olive" />
             <h2 className="font-display text-2xl font-bold">Suggestions for Improvement</h2>
           </div>
-          <ul className="mt-5 space-y-3 text-slate-700">
-            {analysis.suggestions.map((suggestion) => (
-              <li key={suggestion} className="rounded-2xl bg-slate-50 px-4 py-3">
-                {suggestion}
-              </li>
-            ))}
-          </ul>
+          {suggestions.length ? (
+            <ul className="mt-5 space-y-3 text-slate-700">
+              {suggestions.map((suggestion) => (
+                <li key={suggestion} className="rounded-2xl bg-slate-50 px-4 py-3">
+                  {suggestion}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-5 text-slate-500">No improvement suggestions were returned.</p>
+          )}
 
           <div className="mt-8 rounded-3xl bg-ink p-6 text-white">
             <div className="flex items-center gap-3">
               <Sparkles className="h-5 w-5" />
               <h3 className="font-display text-xl font-bold">Improved Summary Rewrite</h3>
             </div>
-            <p className="mt-4 leading-8 text-white/85">{analysis.improved_summary}</p>
+            <p className="mt-4 leading-8 text-white/85">
+              {analysis.improved_summary || 'No summary rewrite was returned for this resume.'}
+            </p>
           </div>
         </div>
 
-        <div className="glass-card p-8">
+        <div className="glass-card min-w-0 p-8">
           <h2 className="font-display text-2xl font-bold">Section Analysis</h2>
           <p className="mt-2 text-slate-600">Section-wise strengths and fixes based on ATS fit.</p>
 
-          <div className="mt-6 h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart layout="vertical" data={sectionChartData} margin={{ left: 12 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                <XAxis type="number" domain={[0, 100]} />
-                <YAxis dataKey="name" type="category" width={90} />
-                <Tooltip />
-                <Bar dataKey="score" fill="#0f766e" radius={[0, 12, 12, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {sectionChartData.length ? (
+            <div className="mt-6 h-72 min-w-0">
+              <ResponsiveContainer width="100%" height="100%" minWidth={280} debounce={200}>
+                <BarChart layout="vertical" data={sectionChartData} margin={{ left: 12 }}>
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <XAxis type="number" domain={[0, 100]} />
+                  <YAxis dataKey="name" type="category" width={90} />
+                  <Tooltip />
+                  <Bar dataKey="score" fill="#0f766e" radius={[0, 12, 12, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="mt-6 rounded-3xl bg-slate-50 px-5 py-8 text-slate-500">
+              Section-level chart data is not available for this result.
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
-        {analysis.section_analysis.map((section) => (
-          <div key={section.section} className="glass-card p-6">
-            <div className="flex items-center justify-between gap-4">
-              <h3 className="font-display text-2xl font-bold">{section.section}</h3>
-              <span className="rounded-full bg-mist px-3 py-2 text-sm font-semibold text-pine">{section.score}/100</span>
-            </div>
-            <p className="mt-4 leading-7 text-slate-600">{section.feedback}</p>
+      {sectionAnalysis.length ? (
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          {sectionAnalysis.map((section) => (
+            <div key={section.section} className="glass-card p-6">
+              <div className="flex items-center justify-between gap-4">
+                <h3 className="font-display text-2xl font-bold">{section.section}</h3>
+                <span className="rounded-full bg-mist px-3 py-2 text-sm font-semibold text-pine">{section.score}/100</span>
+              </div>
+              <p className="mt-4 leading-7 text-slate-600">{section.feedback}</p>
 
-            <div className="mt-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Strengths</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {section.strengths.map((item) => (
-                  <span key={item} className="rounded-full bg-mist px-3 py-2 text-sm font-medium text-pine">
-                    {item}
-                  </span>
-                ))}
+              <div className="mt-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Strengths</p>
+                {section.strengths?.length ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {section.strengths.map((item) => (
+                      <span key={item} className="rounded-full bg-mist px-3 py-2 text-sm font-medium text-pine">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-3 text-sm text-slate-500">No section strengths were returned.</p>
+                )}
+              </div>
+
+              <div className="mt-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Improvements</p>
+                {section.improvements?.length ? (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {section.improvements.map((item) => (
+                      <span key={item} className="rounded-full bg-orange-50 px-3 py-2 text-sm font-medium text-clay">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-3 text-sm text-slate-500">No section improvements were returned.</p>
+                )}
               </div>
             </div>
-
-            <div className="mt-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Improvements</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {section.improvements.map((item) => (
-                  <span key={item} className="rounded-full bg-orange-50 px-3 py-2 text-sm font-medium text-clay">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : null}
 
       <div className="mt-8 flex flex-wrap justify-end gap-3">
         <button

@@ -58,7 +58,7 @@ function AnalysisForm() {
           </div>
         </div>
 
-        <div className="glass-card p-6 sm:p-8">
+        <div className="glass-card min-h-[42rem] p-6 sm:p-8">
           {isAnalyzing ? (
             <LoadingOverlay />
           ) : (

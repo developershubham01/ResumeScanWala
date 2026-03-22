@@ -1,6 +1,7 @@
-import { FileSearch, Github, House } from 'lucide-react'
+import { Github, House } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
 
+import BrandMark from './BrandMark'
 import { useAnalysis } from '../hooks/useAnalysis'
 import { siteConfig } from '../siteConfig'
 
@@ -10,14 +11,8 @@ function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/60 bg-[#fffaf5]/85 backdrop-blur">
       <div className="section-shell flex items-center justify-between py-4">
-        <Link to="/" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-ink text-white">
-            <FileSearch className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="font-display text-lg font-bold">{siteConfig.appName}</p>
-            <p className="text-xs text-slate-500">Free ATS score and job match insights</p>
-          </div>
+        <Link to="/" className="min-w-0">
+          <BrandMark />
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 md:flex">
@@ -39,7 +34,7 @@ function Header() {
             <House className="h-5 w-5" />
           </Link>
           <a
-            href="https://github.com/developershubham01"
+            href={siteConfig.githubUrl}
             target="_blank"
             rel="noreferrer"
             aria-label="Open GitHub profile"
