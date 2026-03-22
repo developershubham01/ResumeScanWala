@@ -10,9 +10,7 @@ class Base(DeclarativeBase):
 
 engine = create_engine(
     settings.database_url,
-    connect_args={"check_same_thread": False} if settings.database_url.startswith("sqlite") else {},
-    pool_pre_ping=not settings.database_url.startswith("sqlite"),
-    pool_recycle=280 if settings.database_url.startswith("mysql") else -1,
+    pool_pre_ping=True
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
