@@ -7,8 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import models  # noqa: F401
 from app.api.routes import router
 from app.core.config import settings
-from app.core.database import Base, engine, verify_database_connection
-
+from app.core.database import Base, engine
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -17,10 +16,8 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     logger.info("Application startup initiated.")
-    logger.info("Checking database connectivity.")
     try:
-        verify_database_connection()
-        logger.info("Database connection established. Creating tables if needed.")
+        logger.info("Creating tables if needed.")
         Base.metadata.create_all(bind=engine)
         logger.info("Application startup completed successfully.")
     except Exception:
