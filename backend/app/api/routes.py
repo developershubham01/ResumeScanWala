@@ -66,7 +66,17 @@ def subscribe(
     payload: SubscriptionRequest,
     db: Session = Depends(get_db),
 ) -> SubscriptionResponse:
-    existing_subscriber = db.query(SubscriberRecord).filter(SubscriberRecord.email == payload.email).first()
+    try:
+        existing_subscriber = db.query(SubscriberRecord).filter(SubscriberRecord.email == payload.email).first()
+    except SQLAlchemyError as exc:
+        db.rollback()
+        logger.exception("Subscriber lookup failed.")
+        return SubscriptionResponse(
+            message="Subscription request was received, but saving is temporarily unavailable.",
+            email_notification_sent=False,
+            is_new_subscription=False,
+        )
+
     if existing_subscriber:
         return SubscriptionResponse(
             message="This email is already subscribed.",
@@ -80,10 +90,12 @@ def subscribe(
         db.commit()
     except SQLAlchemyError as exc:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Saving the subscription failed. Please try again.",
-        ) from exc
+        logger.exception("Saving the subscription failed.")
+        return SubscriptionResponse(
+            message="Subscription request was received, but saving is temporarily unavailable.",
+            email_notification_sent=False,
+            is_new_subscription=False,
+        )
 
     if not settings.smtp_configured:
         return SubscriptionResponse(
