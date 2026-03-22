@@ -108,7 +108,7 @@ function Footer() {
         </div>
 
         <div className="flex flex-col gap-3 py-6 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
-          <p>Built with React, Tailwind CSS, FastAPI, MySQL, and Google Gemini.</p>
+          <p>Built with React, Tailwind CSS, FastAPI, PostgreSQL, and Google Gemini.</p>
           <a
             href={siteConfig.linkedinUrl}
             target="_blank"

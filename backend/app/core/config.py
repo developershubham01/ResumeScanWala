@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     gemini_api_key: str = ""
     gemini_model: str = "gemini-2.5-flash"
-    database_url: str = "mysql+pymysql://root:password@localhost:3306/resume_analyzer_db"
+    database_url: str = "postgresql+psycopg://postgres:password@localhost:5432/resume_analyzer_db"
     cors_origins: str = "http://localhost:5173"
     max_file_size_mb: int = 5
     smtp_host: str = ""

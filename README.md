@@ -7,7 +7,7 @@ A production-ready free SaaS web app that analyzes a resume against a job descri
 - Frontend: React + Vite + Tailwind CSS
 - Backend: FastAPI + Python
 - AI: Google Gemini API
-- Database: MySQL + SQLAlchemy
+- Database: PostgreSQL + SQLAlchemy
 - Resume parsing: PyMuPDF and python-docx
 - Deployment: Vercel for frontend, Render or Railway for backend
 
@@ -56,7 +56,7 @@ resume_analyzer_with_job_description/
 - Inspect resume issues and suggestions
 - Read section-wise feedback
 - Download the final report as PDF
-- Persist completed analyses in MySQL
+- Persist completed analyses in PostgreSQL
 
 ## Backend API
 
@@ -125,14 +125,14 @@ Required environment values in `backend/.env`:
 
 - `GEMINI_API_KEY`: your Google Gemini API key
 - `GEMINI_MODEL`: default `gemini-2.5-flash`
-- `DATABASE_URL`: MySQL connection string, for example `mysql+pymysql://root:password@localhost:3306/resume_analyzer_db`
+- `DATABASE_URL`: PostgreSQL connection string, for example `postgresql+psycopg://postgres:password@localhost:5432/resume_analyzer_db`
 - `CORS_ORIGINS`: frontend URL, for example `http://localhost:5173`
 - `MAX_FILE_SIZE_MB`: max upload size, default `5`
 
 Create the database before starting the backend:
 
 ```sql
-CREATE DATABASE resume_analyzer_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE resume_analyzer_db;
 ```
 
 ### 2. Frontend
@@ -186,7 +186,7 @@ Structured output validation is enforced with a Pydantic schema so the app rejec
 6. Add environment variables:
    - `GEMINI_API_KEY`
    - `GEMINI_MODEL=gemini-2.5-flash`
-   - `DATABASE_URL=mysql+pymysql://USERNAME:PASSWORD@HOST:3306/resume_analyzer_db`
+   - `DATABASE_URL=postgresql+psycopg://USERNAME:PASSWORD@HOST:5432/resume_analyzer_db`
    - `CORS_ORIGINS=https://your-vercel-domain.vercel.app`
 7. Deploy and copy the backend URL.
 
@@ -196,7 +196,7 @@ Structured output validation is enforced with a Pydantic schema so the app rejec
 2. Set the service root to `backend`.
 3. Railway will detect Python automatically.
 4. Set the start command to `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-5. Add the same environment variables used for Render, including your MySQL `DATABASE_URL`.
+5. Add the same environment variables used for Render, including your PostgreSQL `DATABASE_URL`.
 6. Deploy and copy the public backend URL.
 
 ### Frontend on Vercel
@@ -213,7 +213,7 @@ Structured output validation is enforced with a Pydantic schema so the app rejec
 
 - The frontend is mobile-first and SEO-optimized with the required title, description, keywords, and heading structure.
 - The backend validates upload type, file size, readable content, Gemini JSON shape, and API errors.
-- Every successful analysis is stored in MySQL.
+- Every successful analysis is stored in PostgreSQL.
 - PDF download is handled on the client for a fully free deployment path.
 
 ## Useful Commands
