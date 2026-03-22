@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
@@ -16,6 +17,7 @@ from app.services.gemini_service import GeminiAnalyzer
 from app.services.parser import extract_text, validate_upload
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 def _build_feedback_text(analysis: GeminiAnalysis) -> str:
@@ -153,10 +155,14 @@ async def analyze_resume(
         db.refresh(record)
     except SQLAlchemyError as exc:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Analysis was generated, but saving it failed. Please try again.",
-        ) from exc
+        logger.exception("Analysis save failed after Gemini response was generated.")
+        return AnalysisResponse(
+            analysis_id=0,
+            file_name=file.filename or "resume",
+            created_at=datetime.utcnow(),
+            extracted_characters=len(resume_text),
+            analysis=analysis,
+        )
 
     return AnalysisResponse(
         analysis_id=record.id,
