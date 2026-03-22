@@ -95,10 +95,12 @@ def subscribe(
     try:
         SubscriptionEmailService.send_subscription_notifications(payload.email)
     except Exception as exc:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Subscription was saved, but sending the email notification failed.",
-        ) from exc
+        logger.exception("Subscription email notification failed after the subscriber was saved.")
+        return SubscriptionResponse(
+            message="Subscribed successfully, but the email notification could not be sent.",
+            email_notification_sent=False,
+            is_new_subscription=True,
+        )
 
     return SubscriptionResponse(
         message="Subscribed successfully. A notification email has been sent.",
