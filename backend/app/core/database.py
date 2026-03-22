@@ -1,5 +1,4 @@
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.core.config import settings
@@ -50,14 +49,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-def verify_database_connection() -> None:
-    try:
-        with engine.connect() as connection:
-            connection.execute(text("SELECT 1"))
-    except SQLAlchemyError as exc:
-        raise RuntimeError(
-            "Database connection failed during startup. Check DATABASE_URL, database availability, network access, "
-            "and PostgreSQL SSL requirements such as '?sslmode=require'."
-        ) from exc
